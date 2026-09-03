@@ -1,71 +1,233 @@
 /**
  * Content script — roda em todas as páginas do SEI.
  *
- * Responsabilidades da Fase 0 (aqui): identificar NUPs na página e injetar
- * um marcador *ao lado* deles, sem tocar no DOM oficial do SEI. Se o SEI
- * mudar o HTML, o pior cenário é o marcador sumir.
+ * Detecta NUPs no DOM, injeta um badge "Rota" ao lado do texto (Shadow
+ * DOM fechado, sem tocar no DOM oficial), consulta o backend para saber
+ * se o processo já existe e cria o registro sob demanda. Ao clicar,
+ * abre o detalhe no dashboard embutido em uma nova aba.
  *
- * A conexão com Supabase, o card com responsável/prazo e o drawer lateral
- * ficam para a Fase 1 — mas a arquitetura já é a definitiva: MutationObserver
- * + web components isolados via Shadow DOM.
+ * Estratégia de resiliência: se qualquer coisa quebrar (consulta falha,
+ * usuário deslogado, backend fora do ar), o badge silenciosamente
+ * degrada para o rótulo genérico "Rota" — nunca quebramos a página.
  */
 
-import { extractNups, normalizeNup } from '@rota/shared/nup';
+import { extractNups } from '@rota/shared/nup';
+import { supabase } from '../lib/supabase.ts';
 
-const MARKER_TAG = 'rota-badge';
+const BADGE_TAG = 'rota-badge';
 const MARKER_ATTR = 'data-rota-marked';
 
+type BadgeState =
+  | { kind: 'loading' }
+  | { kind: 'unknown' }
+  | { kind: 'known'; status: string; assignee?: string | null }
+  | { kind: 'anonymous' };
+
 class RotaBadge extends HTMLElement {
+  static observedAttributes = ['nup', 'state', 'label', 'tone'];
+
   connectedCallback() {
-    const nup = this.getAttribute('nup') ?? '?';
     const shadow = this.attachShadow({ mode: 'closed' });
     shadow.innerHTML = `
       <style>
         :host { display: inline-flex; margin-left: 6px; vertical-align: middle; }
-        .pill {
+        button {
+          all: unset;
+          cursor: pointer;
           font: 500 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          color: #f8fafc; background: #1e293b; border-radius: 999px;
-          padding: 3px 8px; cursor: pointer; letter-spacing: 0.02em;
-          border: 1px solid #334155;
+          padding: 3px 8px;
+          border-radius: 999px;
+          border: 1px solid transparent;
+          letter-spacing: 0.02em;
         }
-        .pill:hover { background: #334155; }
+        button:focus-visible { outline: 2px solid #60a5fa; outline-offset: 1px; }
+        .tone-neutral  { background: #1e293b; color: #f8fafc; border-color: #334155; }
+        .tone-accent   { background: #1e40af; color: #f8fafc; border-color: #1e3a8a; }
+        .tone-warn     { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .tone-muted    { background: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+        .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; background: currentColor; opacity: 0.7; }
       </style>
-      <button class="pill" title="Abrir no Rota (${nup})">Rota</button>
+      <button type="button">
+        <span class="dot"></span>
+        <span class="label"></span>
+      </button>
     `;
-    shadow.querySelector('.pill')?.addEventListener('click', () => {
-      // TODO(fase-1): abrir o drawer com o processo.
-      window.dispatchEvent(new CustomEvent('rota:open', { detail: { nup } }));
+    const btn = shadow.querySelector('button');
+    btn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const nup = this.getAttribute('nup') ?? '';
+      this.dispatchEvent(new CustomEvent('rota:click', { detail: { nup }, bubbles: true }));
     });
+    this.render(shadow);
+  }
+
+  attributeChangedCallback() {
+    const shadow = this.shadowRoot as ShadowRoot | null;
+    if (shadow) this.render(shadow);
+  }
+
+  private render(shadow: ShadowRoot) {
+    const btn = shadow.querySelector('button');
+    const label = shadow.querySelector('.label');
+    if (!btn || !label) return;
+    const tone = this.getAttribute('tone') ?? 'neutral';
+    btn.className = `tone-${tone}`;
+    label.textContent = this.getAttribute('label') ?? 'Rota';
+    btn.setAttribute('title', `Rota · ${this.getAttribute('nup') ?? ''}`);
   }
 }
 
-if (!customElements.get(MARKER_TAG)) {
-  customElements.define(MARKER_TAG, RotaBadge);
+if (!customElements.get(BADGE_TAG)) {
+  customElements.define(BADGE_TAG, RotaBadge);
 }
 
+/** Renderiza o estado no badge. */
+function paint(el: HTMLElement, state: BadgeState) {
+  if (state.kind === 'loading') {
+    el.setAttribute('label', '…');
+    el.setAttribute('tone', 'muted');
+    return;
+  }
+  if (state.kind === 'anonymous') {
+    el.setAttribute('label', 'Entrar no Rota');
+    el.setAttribute('tone', 'neutral');
+    return;
+  }
+  if (state.kind === 'unknown') {
+    el.setAttribute('label', '+ Trazer para o Rota');
+    el.setAttribute('tone', 'warn');
+    return;
+  }
+  const status = state.status ?? '';
+  const who = state.assignee ? `· ${state.assignee}` : '';
+  el.setAttribute('label', `${status} ${who}`.trim());
+  el.setAttribute('tone', 'accent');
+}
+
+const STATUS_SHORT: Record<string, string> = {
+  received: 'Recebido',
+  in_analysis: 'Em análise',
+  awaiting_external: 'Aguardando externo',
+  in_review: 'Revisão',
+  done: 'Concluído',
+  archived: 'Arquivado',
+};
+
 /**
- * Anota texto com badges do Rota ao lado de cada NUP encontrado.
- * Nunca reescreve o texto oficial — só insere um irmão.
+ * Cache por página para não repetir consulta por NUP.
+ * Vive só pela vida do content script.
  */
+const cache = new Map<string, BadgeState>();
+
+async function resolve(nup: string): Promise<BadgeState> {
+  const cached = cache.get(nup);
+  if (cached) return cached;
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    const s: BadgeState = { kind: 'anonymous' };
+    cache.set(nup, s);
+    return s;
+  }
+
+  const { data: proc, error } = await supabase
+    .from('processes')
+    .select('id, status')
+    .eq('nup', nup)
+    .maybeSingle();
+  if (error) {
+    return { kind: 'unknown' };
+  }
+  if (!proc) {
+    const s: BadgeState = { kind: 'unknown' };
+    cache.set(nup, s);
+    return s;
+  }
+  const { data: assignment } = await supabase
+    .from('assignments')
+    .select('assignee_id, profiles:profiles!assignments_assignee_id_fkey(username, full_name)')
+    .eq('process_id', proc.id)
+    .eq('is_current', true)
+    .maybeSingle();
+  const shortName =
+    (assignment as { profiles?: { full_name?: string } } | null)?.profiles?.full_name?.split(
+      ' ',
+    )[0] ?? null;
+  const s: BadgeState = {
+    kind: 'known',
+    status: STATUS_SHORT[proc.status] ?? proc.status,
+    assignee: shortName,
+  };
+  cache.set(nup, s);
+  return s;
+}
+
+function attachBadge(anchor: Node, nup: string) {
+  const parent = anchor.parentNode;
+  if (!parent) return;
+  const el = document.createElement(BADGE_TAG) as HTMLElement;
+  el.setAttribute('nup', nup);
+  el.setAttribute(MARKER_ATTR, '1');
+  paint(el, { kind: 'loading' });
+  parent.insertBefore(el, anchor.nextSibling);
+  resolve(nup)
+    .then((s) => paint(el, s))
+    .catch(() => paint(el, { kind: 'unknown' }));
+  el.addEventListener('rota:click', async (e) => {
+    const detail = (e as CustomEvent).detail as { nup?: string };
+    const targetNup = detail?.nup ?? nup;
+    const state = cache.get(targetNup);
+    if (state?.kind === 'anonymous') {
+      chrome.runtime.sendMessage({ type: 'rota:open-dashboard', path: '/login' });
+      return;
+    }
+    if (state?.kind === 'unknown') {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const me = sessionData.session?.user.id;
+      if (!me) {
+        chrome.runtime.sendMessage({ type: 'rota:open-dashboard', path: '/login' });
+        return;
+      }
+      const { data: created, error } = await supabase
+        .from('processes')
+        .insert({ nup: targetNup, created_by: me })
+        .select('id')
+        .single();
+      if (error || !created) {
+        paint(el, { kind: 'unknown' });
+        return;
+      }
+      await supabase.rpc('transfer_assignment', {
+        _process_id: created.id,
+        _to_user_id: me,
+        _handoff_context: '',
+      });
+      cache.delete(targetNup);
+      const next = await resolve(targetNup);
+      paint(el, next);
+      chrome.runtime.sendMessage({ type: 'rota:open-dashboard', path: `/p/${created.id}` });
+      return;
+    }
+    // known: abre o detalhe
+    const { data: proc } = await supabase
+      .from('processes')
+      .select('id')
+      .eq('nup', targetNup)
+      .maybeSingle();
+    if (proc?.id) {
+      chrome.runtime.sendMessage({ type: 'rota:open-dashboard', path: `/p/${proc.id}` });
+    }
+  });
+}
+
 function markText(node: Text): void {
   const value = node.nodeValue;
   if (!value) return;
   const nups = extractNups(value);
   if (nups.length === 0) return;
-
-  const parent = node.parentNode;
-  if (!parent || (parent as Element).closest?.(MARKER_TAG)) return;
-
-  // Estratégia simples de v0: um badge no final do nó, referenciando o
-  // primeiro NUP encontrado. Fica bom em >90% dos usos reais (páginas de
-  // andamento e detalhamento). Refinamento por posição exata vem depois.
-  const first = normalizeNup(nups[0] ?? '')?.formatted;
-  if (!first) return;
-
-  const badge = document.createElement(MARKER_TAG);
-  badge.setAttribute('nup', first);
-  badge.setAttribute(MARKER_ATTR, '1');
-  parent.insertBefore(badge, node.nextSibling);
+  const parent = node.parentNode as Element | null;
+  if (!parent || parent.closest(BADGE_TAG)) return;
+  attachBadge(node, nups[0] as string);
 }
 
 function scan(root: ParentNode): void {
@@ -78,7 +240,7 @@ function scan(root: ParentNode): void {
       if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'INPUT') {
         return NodeFilter.FILTER_REJECT;
       }
-      if (parent.closest(MARKER_TAG)) return NodeFilter.FILTER_REJECT;
+      if (parent.closest(BADGE_TAG)) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     },
   });
@@ -91,7 +253,6 @@ function scan(root: ParentNode): void {
   for (const t of batch) markText(t);
 }
 
-// Primeira varredura + observação incremental.
 scan(document.body);
 
 const observer = new MutationObserver((mutations) => {
@@ -104,10 +265,10 @@ const observer = new MutationObserver((mutations) => {
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Atalho de teclado + comando via background.
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === 'rota:open-drawer') {
-    // TODO(fase-1): abrir drawer no NUP da URL/página atual.
-    console.info('[Rota] open-drawer solicitado.');
+    // Fase 1.5: abrir um drawer sobre a página. Por enquanto abre o
+    // dashboard embutido — mesmo destino, mais fluído no piloto.
+    chrome.runtime.sendMessage({ type: 'rota:open-dashboard', path: '/' });
   }
 });
