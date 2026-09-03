@@ -45,25 +45,33 @@ buildáveis da extensão e do painel, CI verde. O que já era real na Fase 0:
 Tudo que é **stub** está marcado com `TODO(fase-1)`. Ver `docs/SCOPE.md`
 para o documento completo e o roadmap.
 
-## Setup em <10 minutos
+## Setup — dois comandos
 
-Requisitos: Node 20.11+, pnpm 9+, Docker (para o Supabase local),
+Requisitos: Node 20.11+, pnpm 9+, Docker Desktop rodando,
 [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started).
 
 ```bash
 git clone git@github.com:leosmdrs/WorkFlow.git rota
 cd rota
-pnpm install
-cp .env.example .env.local  # ajuste com o output de `supabase start`
-pnpm db:start               # sobe Postgres + Auth + Studio local
-pnpm db:reset               # aplica migrations + seed
-pnpm db:types               # gera tipos TS a partir do schema
-pnpm dev:web                # painel em http://localhost:5173
-pnpm dev:extension          # extensão em apps/extension/dist (carregar unpacked no Chrome)
+pnpm setup    # instala deps, sobe Supabase local, escreve .env.local,
+              # aplica migrations+seed, gera tipos, roda sanidade
+pnpm start    # painel em http://localhost:5173 + build-watch da extensão
 ```
 
-Usuários de seed (senha `RotaDev!2026`): `admin`, `ana.souza`,
-`joao.silva`, `maria.lima`.
+`pnpm setup` é idempotente — rodar de novo no dia seguinte só refaz o
+que mudou. Se algo estiver ausente (docker off, CLI faltando) ele diz
+qual e para.
+
+**Extensão no Chrome:** `chrome://extensions` → ativar "Modo do
+desenvolvedor" → **Carregar sem compactação** → apontar para
+`apps/extension/dist`.
+
+Usuários de seed (senha `RotaDev!2026` para todos):
+`admin`, `ana.souza`, `joao.silva`, `maria.lima`.
+
+Comandos avulsos ainda existem quando precisar: `pnpm db:start`,
+`pnpm db:reset`, `pnpm db:types`, `pnpm dev:web`, `pnpm dev:extension`,
+`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
 
 ## Estrutura
 
