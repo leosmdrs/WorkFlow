@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@rota/db-types';
+import { createClient } from '@supabase/supabase-js';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -7,9 +7,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 if (!url || !anonKey) {
   // Falha ruidosa em dev: melhor um erro claro no console do que um app
   // que "funciona" fazendo login em nada.
-  console.error(
-    '[Rota] VITE_SUPABASE_URL/ANON_KEY ausentes. Copie .env.example para .env.local.',
-  );
+  console.error('[Rota] VITE_SUPABASE_URL/ANON_KEY ausentes. Copie .env.example para .env.local.');
 }
 
 export const supabase = createClient<Database>(url ?? '', anonKey ?? '', {

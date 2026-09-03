@@ -4,9 +4,7 @@ export function FlowPage() {
   return (
     <>
       <h1 className="page-title">Fluxo da Área</h1>
-      <p className="page-lead">
-        Kanban por status. Colunas configuráveis pelo admin.
-      </p>
+      <p className="page-lead">Kanban por status. Colunas configuráveis pelo admin.</p>
       <div
         style={{
           display: 'grid',

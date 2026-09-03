@@ -1,6 +1,6 @@
-import { useState, type CSSProperties, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { APP_NAME, APP_TAGLINE } from '@rota/shared';
+import { type CSSProperties, type FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.ts';
 
 export function LoginPage() {
@@ -39,10 +39,11 @@ export function LoginPage() {
         <p style={{ marginTop: 4, marginBottom: 20, color: 'var(--color-fg-muted)' }}>
           {APP_TAGLINE}
         </p>
-        <label style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>
+        <label htmlFor="rota-email" style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>
           E-mail
         </label>
         <input
+          id="rota-email"
           type="email"
           required
           autoComplete="email"
@@ -50,10 +51,14 @@ export function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           style={inputStyle}
         />
-        <label style={{ display: 'block', fontSize: 13, margin: '14px 0 6px' }}>
+        <label
+          htmlFor="rota-password"
+          style={{ display: 'block', fontSize: 13, margin: '14px 0 6px' }}
+        >
           Senha
         </label>
         <input
+          id="rota-password"
           type="password"
           required
           autoComplete="current-password"
@@ -62,9 +67,7 @@ export function LoginPage() {
           style={inputStyle}
         />
         {error && (
-          <div style={{ marginTop: 12, color: 'var(--color-danger)', fontSize: 13 }}>
-            {error}
-          </div>
+          <div style={{ marginTop: 12, color: 'var(--color-danger)', fontSize: 13 }}>{error}</div>
         )}
         <button type="submit" disabled={busy} style={submitStyle}>
           {busy ? 'Entrando…' : 'Entrar'}

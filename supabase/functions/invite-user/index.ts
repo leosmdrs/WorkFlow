@@ -34,7 +34,9 @@ function json(status: number, body: unknown): Response {
 function randomPassword(): string {
   // 24 chars com garantias mínimas — suficiente para "senha temporária".
   const bytes = crypto.getRandomValues(new Uint8Array(18));
-  return btoa(String.fromCharCode(...bytes)).replaceAll('/', '_').replaceAll('+', '-');
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll('/', '_')
+    .replaceAll('+', '-');
 }
 
 Deno.serve(async (req) => {

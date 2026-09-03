@@ -39,10 +39,7 @@ describe('extractNups', () => {
       <div>Ver também 08650000124202655 e 08650.000123/2026-11 (repetido).</div>
       <div>Nada aqui: 12345 e 000.000/0000-00 é lixo.</div>
     `;
-    expect(extractNups(html)).toEqual([
-      '08650.000123/2026-11',
-      '08650.000124/2026-55',
-    ]);
+    expect(extractNups(html)).toEqual(['08650.000123/2026-11', '08650.000124/2026-55']);
   });
 
   it('devolve array vazio quando não há match', () => {

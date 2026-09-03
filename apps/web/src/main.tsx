@@ -3,8 +3,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { App } from './App.tsx';
-import { LoginPage } from './pages/Login.tsx';
 import { AuthGate } from './lib/auth-gate.tsx';
+import { LoginPage } from './pages/Login.tsx';
 import './styles.css';
 
 const qc = new QueryClient({

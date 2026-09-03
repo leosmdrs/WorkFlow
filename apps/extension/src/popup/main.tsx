@@ -1,6 +1,5 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import { APP_NAME, APP_TAGLINE } from '@rota/shared';
+import { createRoot } from 'react-dom/client';
 
 function Popup() {
   const openDashboard = () => {

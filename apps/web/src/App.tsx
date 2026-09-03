@@ -1,7 +1,7 @@
-import { NavLink, Route, Routes } from 'react-router-dom';
 import { APP_NAME } from '@rota/shared';
-import { InboxPage } from './pages/Inbox.tsx';
+import { NavLink, Route, Routes } from 'react-router-dom';
 import { FlowPage } from './pages/Flow.tsx';
+import { InboxPage } from './pages/Inbox.tsx';
 import { PanoramaPage } from './pages/Panorama.tsx';
 
 const navItem = ({ isActive }: { isActive: boolean }) =>
@@ -13,9 +13,15 @@ export function App() {
       <aside className="sidebar">
         <div className="brand">{APP_NAME}</div>
         <nav>
-          <NavLink to="/" end className={navItem}>Minha Caixa</NavLink>
-          <NavLink to="/flow" className={navItem}>Fluxo</NavLink>
-          <NavLink to="/panorama" className={navItem}>Panorama</NavLink>
+          <NavLink to="/" end className={navItem}>
+            Minha Caixa
+          </NavLink>
+          <NavLink to="/flow" className={navItem}>
+            Fluxo
+          </NavLink>
+          <NavLink to="/panorama" className={navItem}>
+            Panorama
+          </NavLink>
         </nav>
         <div className="sidebar-footer">Fase 0 — fundação.</div>
       </aside>

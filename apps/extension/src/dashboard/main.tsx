@@ -1,6 +1,5 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import { APP_NAME } from '@rota/shared';
+import { createRoot } from 'react-dom/client';
 
 /**
  * Bundle do dashboard dentro da extensão.

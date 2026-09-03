@@ -26,8 +26,7 @@ export const NUP_PATTERN = /^\d{5}\.\d{6}\/\d{4}-\d{2}$/;
  * Aceita separadores opcionais e converte no `normalizeNup`.
  * Global + sem lookbehind (Safari-safe).
  */
-export const NUP_LOOSE_PATTERN =
-  /\b(\d{5})[.\s]?(\d{6})[/\s]?(\d{4})[-\s]?(\d{2})\b/g;
+export const NUP_LOOSE_PATTERN = /\b(\d{5})[.\s]?(\d{6})[/\s]?(\d{4})[-\s]?(\d{2})\b/g;
 
 export interface Nup {
   /** Formato canônico: NNNNN.NNNNNN/AAAA-DD */

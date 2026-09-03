@@ -19,9 +19,8 @@ export function toIsoDate(d: Date): IsoDate {
 
 /** Parse defensivo. Aceita ISO curto ou Date. */
 export function toDate(input: IsoDate | Date): Date {
-  if (input instanceof Date) return new Date(Date.UTC(
-    input.getFullYear(), input.getMonth(), input.getDate(),
-  ));
+  if (input instanceof Date)
+    return new Date(Date.UTC(input.getFullYear(), input.getMonth(), input.getDate()));
   const [y, m, d] = input.split('-').map(Number);
   return new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1));
 }

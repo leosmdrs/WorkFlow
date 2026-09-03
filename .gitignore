@@ -38,6 +38,9 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
+# Vite temporary loaders
+*.timestamp-*.mjs
+
 # Testing
 coverage/
 playwright-report/
