@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["chrome", "vite/client"],
+    "paths": {
+      "@rota/shared": ["../../packages/shared/src/index.ts"],
+      "@rota/shared/*": ["../../packages/shared/src/*"],
+      "@rota/db-types": ["../../packages/db-types/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "vite.config.ts", "manifest.config.ts"]
+}
