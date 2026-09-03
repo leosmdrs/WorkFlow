@@ -1,11 +1,16 @@
 import { APP_NAME, APP_TAGLINE } from '@rota/shared';
 import { type CSSProperties, type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase.ts';
+import { signInWithUsername } from '../lib/supabase.ts';
 
+/**
+ * Login por username. Erros de credencial são deliberadamente
+ * indistinguíveis de "username inexistente" para não facilitar
+ * enumeração (ver signInWithUsername).
+ */
 export function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -14,12 +19,10 @@ export function LoginPage() {
     e.preventDefault();
     setBusy(true);
     setError(null);
-    // Fase 0: login por e-mail direto no Supabase. Fase 1 troca por
-    // username via RPC segura (ver lib/supabase.ts::signInWithUsername).
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: err } = await signInWithUsername(username, password);
     setBusy(false);
     if (err) {
-      setError('Não foi possível entrar. Verifique credenciais.');
+      setError('Usuário ou senha inválidos.');
       return;
     }
     navigate('/', { replace: true });
@@ -39,16 +42,17 @@ export function LoginPage() {
         <p style={{ marginTop: 4, marginBottom: 20, color: 'var(--color-fg-muted)' }}>
           {APP_TAGLINE}
         </p>
-        <label htmlFor="rota-email" style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>
-          E-mail
+        <label htmlFor="rota-username" style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>
+          Usuário
         </label>
         <input
-          id="rota-email"
-          type="email"
+          id="rota-username"
+          type="text"
           required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="username"
+          autoCapitalize="none"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={inputStyle}
         />
         <label
