@@ -204,10 +204,14 @@ atividade, paleta de comandos (`Cmd+K`), drawer lateral no SEI.
 
 ## 12. Roadmap de entrega
 
-- **Fase 0 — Fundação** (1 a 2 semanas). ✅ *Concluída — este commit.*
-- **Fase 1 — MVP navegável** (3 a 4 semanas). Reconhecimento SEI, card,
-  drawer, Minha Caixa, Fluxo, passagem de bastão, admin de usuários,
-  notificações in-app. → *Piloto interno com 3-5 pessoas por 2 semanas.*
+- **Fase 0 — Fundação** (1 a 2 semanas). ✅ *Concluída.*
+- **Fase 1 — MVP navegável** (3 a 4 semanas). ✅ *Concluída — este commit.*
+  Reconhecimento SEI + card com status/responsável, criação sob demanda,
+  Minha Caixa real, Fluxo (kanban), detalhe de processo com timeline
+  unificada, prazos, comentários com @menção, passagem de bastão com
+  aceite/devolução, admin de usuários (convite ou senha temporária),
+  notificações in-app com realtime. → *Piloto interno com 3-5 pessoas por
+  2 semanas.*
 - **Fase 2 — Sofisticação** (3 a 4 semanas). Panorama, rótulos, busca
   global, notificações browser + digest, realtime completo, ajustes do
   piloto, dark mode caprichado. → *Lançamento para a área toda.*

@@ -10,8 +10,26 @@ contexto e conversa.
 
 ## Status
 
+**Fase 1 — MVP navegável.** Sobre a fundação da Fase 0, agora a equipe
+pode usar. Uma pessoa consegue fazer o fluxo ponta a ponta:
+
+- Login por username (via RPC `email_for_username`).
+- **Minha Caixa** real, ordenada por prazo, com destaque para passagens
+  pendentes de aceite.
+- **Fluxo** — kanban por status.
+- **Detalhe de processo**: timeline unificada (activity_log + comments),
+  compositor de comentário com @menção, prazos institucional/interno em
+  dias úteis, mudança de status/prioridade, reatribuição.
+- **Passagem de bastão** com contexto obrigatório (≥ 20 caracteres) e
+  fluxo de aceite/devolução (motivo ≥ 10 caracteres).
+- **Painel de admin de usuários** — convite por e-mail ou senha temporária
+  via Edge Function `invite-user`.
+- **Notificações in-app** com sino, contador e realtime.
+- **Extensão** que reconhece NUP no SEI, mostra status + responsável real,
+  cria o processo sob demanda e abre o detalhe em nova aba do painel.
+
 **Fase 0 — Fundação.** Monorepo, esquema Postgres com RLS, esqueletos
-buildáveis da extensão e do painel, CI verde. O que já é real:
+buildáveis da extensão e do painel, CI verde. O que já era real na Fase 0:
 
 - Schema completo (`supabase/migrations/`), com RLS, triggers, materialized
   views e helpers de dia útil.
