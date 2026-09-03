@@ -5,8 +5,6 @@ const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!url || !anonKey) {
-  // Falha ruidosa em dev: melhor um erro claro no console do que um app
-  // que "funciona" fazendo login em nada.
   console.error('[Rota] VITE_SUPABASE_URL/ANON_KEY ausentes. Copie .env.example para .env.local.');
 }
 
@@ -16,31 +14,31 @@ export const supabase = createClient<Database>(url ?? '', anonKey ?? '', {
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  realtime: {
+    params: { eventsPerSecond: 8 },
+  },
 });
 
 /**
- * Login por username. O Auth do Supabase quer e-mail, mas nossa UI expõe
- * username. Resolvemos aqui: perguntamos o e-mail correspondente à profile
- * antes de chamar signInWithPassword.
+ * Login por username. A UI pede username; Supabase Auth quer e-mail.
+ * Resolvemos server-side via RPC `email_for_username` (security definer),
+ * criada na migration 20260903000005.
  *
- * Segurança: a leitura de profiles por username retorna só id + email
- * (via view segura) e é permitida a anônimos apenas para essa finalidade.
- * Se não quiserem expor sequer o email, trocar por Edge Function.
- * TODO(fase-1): confirmar essa decisão com a TI da PRF.
+ * Devolvemos o mesmo shape do signInWithPassword para os chamadores não
+ * precisarem descobrir se erro foi de resolução ou de credencial — a
+ * mensagem exibida é sempre "usuário ou senha inválidos", para não
+ * confirmar existência do username a quem tentar enumerar.
  */
 export async function signInWithUsername(username: string, password: string) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    // Truque: usamos rpc em vez de select para não vazar email arbitrariamente.
-    // Placeholder até a Fase 1 definir. Aqui deixamos com select para o skeleton.
-    .eq('username', username)
-    .maybeSingle();
-  if (error || !data) {
-    return { error: { message: 'Usuário ou senha inválidos.' } as const };
-  }
-  // TODO(fase-1): resolver email via RPC segura e chamar signInWithPassword.
-  return {
-    error: { message: 'Login por username ainda não implementado (Fase 1).' } as const,
-  };
+  const trimmed = username.trim().toLowerCase();
+  if (!trimmed) return { error: { message: 'invalid_credentials' } };
+
+  const { data: email, error: rpcError } = await supabase.rpc('email_for_username', {
+    _username: trimmed,
+  });
+  if (rpcError || !email) return { error: { message: 'invalid_credentials' } };
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return { error: { message: 'invalid_credentials' } };
+  return { data, error: null };
 }
