@@ -108,6 +108,6 @@ begin
     (_process_3, _admin_id,
      'Prioridade alta. Amostragem já definida — @maria.lima, começa pelos convênios acima de R$500k.');
 
-  refresh materialized view public.mv_workload_by_user;
-  refresh materialized view public.mv_overdue_processes;
+  -- Sem refresh: v_workload_by_user e v_overdue_processes são views
+  -- comuns desde a migration 20260905000001, sempre calculadas na hora.
 end $$;

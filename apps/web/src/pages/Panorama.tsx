@@ -3,17 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase.ts';
 
 /**
- * Panorama — versão Fase 1 focada em carga por pessoa. O heatmap
- * completo e a lista de "parados há X dias" entram na Fase 2, quando
- * a materialized view mv_workload_by_user tiver dados reais para
- * balancear as escalas cromáticas.
+ * Panorama — carga por pessoa. Lê v_workload_by_user, que desde a
+ * migration 20260905000001 é uma view comum com security_invoker:
+ * os números são sempre os atuais e a RLS de quem consulta vale.
+ *
+ * O heatmap e a lista de "parados há X dias" entram na Fase 2.
  */
 export function PanoramaPage() {
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ['workload'],
     queryFn: async (): Promise<WorkloadRow[]> => {
+      // O cast cai quando `pnpm db:types` for rodado com as views novas:
+      // views comuns entram nos tipos gerados, materializadas não entravam.
       const { data, error } = await supabase
-        .from('mv_workload_by_user' as unknown as 'profiles')
+        .from('v_workload_by_user' as unknown as 'profiles')
         .select('*')
         .order('active_count', { ascending: false });
       if (error) throw error;

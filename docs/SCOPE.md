@@ -142,8 +142,10 @@ centrais: `profiles`, `processes`, `assignments`, `deadlines`,
 `comments`, `mentions`, `follows`, `labels`, `process_labels`,
 `activity_log`, `notifications`, `holidays`.
 
-Views materializadas: `mv_workload_by_user`, `mv_overdue_processes`
-(refresh via cron do Supabase).
+Views de leitura: `v_processes_with_current_assignee`, `v_next_deadline`,
+`v_workload_by_user`, `v_overdue_processes` — todas comuns (não
+materializadas) e com `security_invoker`, de modo que a RLS de quem
+consulta se aplica e os números são sempre os atuais.
 
 ## 7. Autenticação, papéis e permissões
 
