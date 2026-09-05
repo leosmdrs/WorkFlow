@@ -6,10 +6,12 @@ import { Avatar } from '../components/Avatar.tsx';
 import { CommentComposer } from '../components/CommentComposer.tsx';
 import { DeadlineBadge } from '../components/DeadlineBadge.tsx';
 import { HandoffDialog } from '../components/HandoffDialog.tsx';
+import { LabelPicker } from '../components/LabelPicker.tsx';
 import { PriorityDot, StatusPill } from '../components/Pills.tsx';
 import { Timeline } from '../components/Timeline.tsx';
 import { useCurrentAssignment } from '../data/assignments.ts';
 import { useAddDeadline, useDeadlines, useFulfillDeadline } from '../data/deadlines.ts';
+import { useProcessLabels } from '../data/labels.ts';
 import { useProcess, useUpdateProcessPriority, useUpdateProcessStatus } from '../data/processes.ts';
 import { useProfiles } from '../data/profiles.ts';
 import { useTimeline } from '../data/timeline.ts';
@@ -24,6 +26,7 @@ export function ProcessDetailPage() {
   const { data: profiles = [] } = useProfiles();
   const { data: entries = [] } = useTimeline(id);
   const { data: deadlines = [] } = useDeadlines(id);
+  const { data: appliedLabels = [] } = useProcessLabels(id);
 
   const updateStatus = useUpdateProcessStatus();
   const updatePriority = useUpdateProcessPriority();
@@ -68,6 +71,12 @@ export function ProcessDetailPage() {
             <PriorityDot priority={process.priority} />
             {process.origin_unit && <span className="chip">{process.origin_unit}</span>}
             {process.process_type && <span className="chip">{process.process_type}</span>}
+            {appliedLabels.map((a) => (
+              <span className="chip label-chip" key={a.label_id}>
+                <span className="label-dot" style={{ background: a.label.color }} />
+                {a.label.name}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -108,6 +117,10 @@ export function ProcessDetailPage() {
             >
               Reatribuir…
             </button>
+          </div>
+
+          <div className="card">
+            <LabelPicker processId={id} />
           </div>
 
           <div className="card">

@@ -1,5 +1,5 @@
 import type { TimelineEntry } from '@rota/db-types';
-import { PRIORITY_LABEL, STATUS_LABEL } from '@rota/shared';
+import { describeActivity } from '../lib/activity.ts';
 import { formatDateTime, formatRelative } from '../lib/format.ts';
 import { Avatar } from './Avatar.tsx';
 
@@ -61,39 +61,4 @@ function TimelineItem({ entry }: { entry: TimelineEntry }) {
       </div>
     </div>
   );
-}
-
-function describeActivity(action: string, payload: Record<string, unknown>): string {
-  switch (action) {
-    case 'process.created':
-      return 'criou o processo aqui no Rota';
-    case 'process.archived':
-      return 'arquivou o processo';
-    case 'status.changed': {
-      const from = ((payload.old as Record<string, string>)?.status ??
-        '') as keyof typeof STATUS_LABEL;
-      const to = ((payload.new as Record<string, string>)?.status ??
-        '') as keyof typeof STATUS_LABEL;
-      return `mudou o status de ${STATUS_LABEL[from] ?? from} para ${STATUS_LABEL[to] ?? to}`;
-    }
-    case 'priority.changed': {
-      const from = ((payload.old as Record<string, string>)?.priority ??
-        '') as keyof typeof PRIORITY_LABEL;
-      const to = ((payload.new as Record<string, string>)?.priority ??
-        '') as keyof typeof PRIORITY_LABEL;
-      return `mudou a prioridade de ${PRIORITY_LABEL[from] ?? from} para ${PRIORITY_LABEL[to] ?? to}`;
-    }
-    case 'assignment.claimed':
-      return 'assumiu o processo';
-    case 'assignment.transferred':
-      return 'passou o processo adiante';
-    case 'assignment.accepted':
-      return 'aceitou a passagem';
-    case 'assignment.returned':
-      return 'devolveu a passagem';
-    case 'comment.deleted':
-      return 'removeu um comentário';
-    default:
-      return action;
-  }
 }

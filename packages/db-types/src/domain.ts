@@ -125,6 +125,22 @@ export interface WorkloadRow {
   overdue_count: number;
 }
 
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+/** Rótulo já aplicado a um processo, com os dados do rótulo juntos. */
+export interface AppliedLabel {
+  label_id: string;
+  applied_at: string;
+  applied_by: string | null;
+  label: Label;
+}
+
 /** Uma linha de v_overdue_processes — processo com prazo vencido em aberto. */
 export interface OverdueRow {
   process_id: string;

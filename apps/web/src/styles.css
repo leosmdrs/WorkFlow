@@ -866,3 +866,42 @@ a {
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* --- Rótulos ------------------------------------------------------------- */
+.label-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* A cor livre do rótulo fica na bolinha, nunca atrás de texto: o admin
+   escolhe qualquer hex e o contraste seria imprevisível. */
+.label-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  /* Anel da própria superfície, para cor clara não sumir no chip */
+  box-shadow: 0 0 0 1px var(--color-border-strong);
+}
+.label-chip-remove {
+  border: none;
+  background: none;
+  padding: 0 0 0 2px;
+  margin: 0;
+  cursor: pointer;
+  color: var(--color-fg-muted);
+  font-size: 15px;
+  line-height: 1;
+}
+.label-chip-remove:hover:not(:disabled) {
+  color: var(--color-danger);
+}
+.label-chip-remove:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
