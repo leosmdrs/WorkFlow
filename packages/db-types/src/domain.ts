@@ -125,6 +125,24 @@ export interface WorkloadRow {
   overdue_count: number;
 }
 
+/**
+ * Uma linha de search_all — processo ou comentário, no mesmo formato.
+ * `kind` diz qual dos dois, e os campos do outro vêm nulos.
+ */
+export interface SearchResult {
+  kind: 'process' | 'comment';
+  process_id: string;
+  nup: string;
+  specification: string | null;
+  status: ProcessStatus;
+  priority: ProcessPriority;
+  comment_id: string | null;
+  snippet: string | null;
+  author_name: string | null;
+  occurred_at: string;
+  rank: number;
+}
+
 export interface Label {
   id: string;
   name: string;

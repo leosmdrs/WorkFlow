@@ -1,6 +1,7 @@
 import { APP_NAME } from '@rota/shared';
 import { NavLink, Route, Routes } from 'react-router-dom';
 import { Avatar } from './components/Avatar.tsx';
+import { GlobalSearch } from './components/GlobalSearch.tsx';
 import { NotificationsBell } from './components/NotificationsBell.tsx';
 import { useCurrentProfile } from './data/profiles.ts';
 import { supabase } from './lib/supabase.ts';
@@ -44,7 +45,7 @@ export function App() {
 
       <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <header className="topbar">
-          <div />
+          <GlobalSearch />
           <div className="topbar-actions">
             <NotificationsBell />
             {profile && (
