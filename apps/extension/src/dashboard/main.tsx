@@ -17,7 +17,7 @@ import { createRoot } from 'react-dom/client';
  * com o mesmo bundle da extensão.
  */
 
-const DEFAULT_WEB_URL = 'http://localhost:5173';
+const DEFAULT_WEB_URL = 'http://localhost:5180';
 
 async function readWebUrl(): Promise<string> {
   return new Promise((resolve) => {

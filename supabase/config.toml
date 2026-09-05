@@ -35,8 +35,8 @@ file_size_limit = "2MiB"
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173"]
+site_url = "http://localhost:5180"
+additional_redirect_urls = ["http://localhost:5180"]
 jwt_expiry = 3600
 enable_signup = false
 enable_manual_linking = false

@@ -55,7 +55,7 @@ git clone git@github.com:leosmdrs/WorkFlow.git rota
 cd rota
 pnpm run setup  # instala deps, sobe Supabase local, escreve .env.local,
                 # aplica migrations+seed, gera tipos, roda sanidade
-pnpm start      # painel em http://localhost:5173 + build-watch da extensão
+pnpm start      # painel em http://localhost:5180 + build-watch da extensão
 ```
 
 O `run` é obrigatório: `pnpm setup` (sem `run`) é um comando embutido do

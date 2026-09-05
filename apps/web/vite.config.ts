@@ -3,6 +3,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173 },
+  server: { port: 5180, strictPort: true },
   build: { target: 'es2022', sourcemap: true },
 });

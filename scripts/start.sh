@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Rota — start dev.
-# Sobe painel web (http://localhost:5173) e build-watch da extensão
+# Sobe painel web (http://localhost:5180) e build-watch da extensão
 # em paralelo. Ctrl+C para os dois de uma vez.
 #
 # Depende de scripts/setup.sh já ter rodado ao menos uma vez.
@@ -17,7 +17,7 @@ if ! command -v supabase >/dev/null || ! supabase status >/dev/null 2>&1; then
   echo "  Rode 'supabase start' (ou 'pnpm run setup') em outro terminal."
 fi
 
-echo "→ Painel:    http://localhost:5173"
+echo "→ Painel:    http://localhost:5180"
 echo "→ Extensão:  apps/extension/dist  (carregue como unpacked no chrome://extensions)"
 echo "  Ctrl+C encerra os dois."
 echo

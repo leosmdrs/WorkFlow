@@ -97,7 +97,7 @@ cat <<EOF
 ${BOLD}${GREEN}Pronto.${RESET}
 
 Próximo passo:
-  pnpm start                # sobe painel (5173) + build watch da extensão
+  pnpm start                # sobe painel (5180) + build watch da extensão
 
 Login (senha para todos: RotaDev!2026):
   admin  |  ana.souza  |  joao.silva  |  maria.lima
