@@ -15,6 +15,12 @@
 --   inserir comentário ....... ERROR: new row violates RLS ... activity_log
 --   criar processo ........... ERROR: new row violates RLS ... activity_log
 --   mudar status ............. ERROR: new row violates RLS ... activity_log
+--   passar o bastão .......... ERROR: new row violates RLS ... activity_log
+--
+-- Ou seja, todo caminho de escrita: as três funções de log cobrem
+-- processo, atribuição e comentário, e nenhuma delas conseguia gravar.
+-- transfer_assignment e respond_handoff não escapavam — são SECURITY
+-- INVOKER como as demais, então a RLS também as alcançava.
 --
 -- Ou seja: comentar, cadastrar processo e mudar status estavam
 -- quebrados para todo mundo. Passou despercebido porque o seed roda
