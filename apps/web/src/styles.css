@@ -25,13 +25,17 @@
   --color-accent-soft: #dbeafe;
 
   /* semânticos */
-  --color-ok: #16a34a;
+  --color-ok: #117f3a;
   --color-ok-soft: #dcfce7;
-  --color-warn: #ca8a04;
+  --color-warn: #936403;
   --color-warn-soft: #fef3c7;
-  --color-danger: #dc2626;
+  --color-danger: #c82020;
+  /* Texto sobre fundo danger, como --color-accent-fg faz para o
+     accent. No escuro o danger é claro, e branco por cima dava
+     2.77:1 — pior que o mínimo, antes mesmo deste ajuste. */
+  --color-danger-fg: #ffffff;
   --color-danger-soft: #fee2e2;
-  --color-info: #2563eb;
+  --color-info: #1c5cea;
   --color-info-soft: #dbeafe;
 
   /* Cores de gráfico. Passos próprios, não os semânticos acima: o
@@ -69,14 +73,15 @@
     --color-fg-subtle: #64748b;
     --color-border: #334155;
     --color-border-strong: #475569;
-    --color-accent: #60a5fa;
+    --color-accent: #6aabfa;
     --color-accent-fg: #0f172a;
     --color-accent-soft: rgba(96, 165, 250, 0.16);
     --color-ok: #4ade80;
     --color-ok-soft: rgba(74, 222, 128, 0.16);
     --color-warn: #facc15;
     --color-warn-soft: rgba(250, 204, 21, 0.16);
-    --color-danger: #f87171;
+    --color-danger: #f98080;
+    --color-danger-fg: #0f172a;
     --color-danger-soft: rgba(248, 113, 113, 0.18);
     --color-info: #60a5fa;
     --color-info-soft: rgba(96, 165, 250, 0.14);
@@ -257,7 +262,7 @@ a {
 .btn-danger {
   background: var(--color-danger);
   border-color: var(--color-danger);
-  color: #fff;
+  color: var(--color-danger-fg);
 }
 .btn-ghost {
   border-color: transparent;
@@ -658,7 +663,7 @@ a {
   top: -4px;
   right: -6px;
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-danger-fg);
   border-radius: var(--radius-pill);
   font-size: 10px;
   padding: 1px 5px;
