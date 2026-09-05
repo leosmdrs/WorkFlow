@@ -124,3 +124,35 @@ export interface WorkloadRow {
   high_priority_count: number;
   overdue_count: number;
 }
+
+/** Uma linha de v_overdue_processes — processo com prazo vencido em aberto. */
+export interface OverdueRow {
+  process_id: string;
+  nup: string;
+  specification: string | null;
+  status: ProcessStatus;
+  priority: ProcessPriority;
+  assignee_id: string | null;
+  due_date: string;
+  days_overdue: number;
+  assignee_username: string | null;
+  assignee_name: string | null;
+}
+
+/**
+ * Uma linha de v_stalled_processes — processo sem atividade há
+ * `days_stalled` dias. Processo que nunca teve atividade conta a
+ * partir da criação, então `last_activity_at` nunca é nulo.
+ */
+export interface StalledRow {
+  process_id: string;
+  nup: string;
+  specification: string | null;
+  status: ProcessStatus;
+  priority: ProcessPriority;
+  assignee_id: string | null;
+  assignee_username: string | null;
+  assignee_name: string | null;
+  last_activity_at: string;
+  days_stalled: number;
+}

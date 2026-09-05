@@ -34,6 +34,13 @@
   --color-info: #2563eb;
   --color-info-soft: #dbeafe;
 
+  /* Cores de gráfico. Passos próprios, não os semânticos acima: o
+     --color-accent (#1e40af) é escuro demais para preenchimento e
+     reprova a banda de luminosidade. Este par foi validado para
+     separação sob daltonismo e contraste sobre a superfície clara. */
+  --chart-load: #2563eb;
+  --chart-overdue: #dc2626;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -73,6 +80,11 @@
     --color-danger-soft: rgba(248, 113, 113, 0.18);
     --color-info: #60a5fa;
     --color-info-soft: rgba(96, 165, 250, 0.14);
+
+    /* Passos escolhidos para a banda do modo escuro e validados
+       contra a superfície #1e293b — não são o par claro clareado. */
+    --chart-load: #3b82f6;
+    --chart-overdue: #ef4444;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
     --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
@@ -748,4 +760,109 @@ a {
 }
 .table tr:last-child td {
   border-bottom: none;
+}
+
+/* --- Panorama: barras de carga -------------------------------------------
+   Barra empilhada horizontal por pessoa. O comprimento total é a carga;
+   o segmento vermelho é a parte dela que está com prazo vencido. Não é
+   um heatmap pessoa × métrica de propósito: `overdue` é subconjunto de
+   `active`, então as duas não dividem escala e um grid faria alguém com
+   muita carga em dia parecer mais crítico do que alguém com pouca carga
+   e tudo atrasado. */
+.workload-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.workload-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 14rem) 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+.workload-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workload-track {
+  display: flex;
+  /* 2px de superfície entre segmentos, para a divisa não virar cor nova */
+  gap: 2px;
+  align-items: center;
+  min-width: 0;
+}
+.workload-bar {
+  height: 14px;
+  /* Extremidade arredondada só na ponta livre da barra */
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  min-width: 3px;
+}
+.workload-bar--overdue {
+  background: var(--chart-overdue);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.workload-bar--rest {
+  background: var(--chart-load);
+}
+.workload-row:first-child .workload-bar--rest:first-child,
+.workload-track > .workload-bar--rest:first-child {
+  border-radius: var(--radius-sm);
+}
+.workload-counts {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.workload-empty-bar {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  border: 1px dashed var(--color-border-strong);
+  flex: 1;
+}
+
+/* Legenda: com duas séries ela é obrigatória — a cor nunca é o único
+   portador de identidade. */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.chart-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+}
+.chart-swatch--load {
+  background: var(--chart-load);
+}
+.chart-swatch--overdue {
+  background: var(--chart-overdue);
+}
+
+/* Seções do Panorama */
+.panorama-section {
+  margin-top: var(--space-6);
+}
+.panorama-section-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-fg-muted);
+  margin-bottom: var(--space-2);
+}
+.days-badge {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
 }
