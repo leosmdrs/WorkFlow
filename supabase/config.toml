@@ -1,3 +1,11 @@
+# Portas na faixa 544xx em vez dos padrões 543xx do Supabase.
+# Todo projeto Supabase nasce nas mesmas portas, então dois deles
+# na mesma máquina colidem por definição — o erro é
+# "port is already allocated" no supabase_db, e o start morre.
+# Deslocar o bloco inteiro deixa o Rota conviver com os outros
+# projetos de quem desenvolve. Mesma razão da porta 5180 no Vite.
+# Se mexer aqui, ajuste também .env.example e o CI.
+
 # Rota — Supabase local configuration.
 # Full reference: https://supabase.com/docs/guides/cli/config
 
@@ -5,14 +13,14 @@ project_id = "rota"
 
 [api]
 enabled = true
-port = 54321
+port = 54421
 schemas = ["public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54322
-shadow_port = 54320
+port = 54422
+shadow_port = 54420
 major_version = 15
 
 [db.pooler]
@@ -23,11 +31,11 @@ enabled = true
 
 [studio]
 enabled = true
-port = 54323
+port = 54423
 
 [inbucket]
 enabled = true
-port = 54324
+port = 54424
 
 [storage]
 enabled = true
@@ -53,4 +61,4 @@ enable_confirmations = false
 [edge_runtime]
 enabled = true
 policy = "oneshot"
-inspector_port = 8083
+inspector_port = 8183
