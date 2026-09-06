@@ -1,6 +1,7 @@
 import type { TimelineEntry } from '@rota/db-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { asDomain } from '../lib/rows.ts';
 import { supabase } from '../lib/supabase.ts';
 
 export function useTimeline(processId: string | undefined) {
@@ -14,7 +15,7 @@ export function useTimeline(processId: string | undefined) {
         _process_id: processId,
       });
       if (error) throw error;
-      return data ?? [];
+      return asDomain<TimelineEntry[]>(data ?? []);
     },
   });
 

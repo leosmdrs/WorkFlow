@@ -1,5 +1,6 @@
 import type { Deadline, DeadlineKind } from '@rota/db-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { asDomain } from '../lib/rows.ts';
 import { supabase } from '../lib/supabase.ts';
 
 export function useDeadlines(processId: string | undefined) {
@@ -14,7 +15,7 @@ export function useDeadlines(processId: string | undefined) {
         .eq('process_id', processId)
         .order('due_date');
       if (error) throw error;
-      return data;
+      return asDomain<Deadline[]>(data);
     },
   });
 }

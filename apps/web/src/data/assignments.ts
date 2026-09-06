@@ -1,5 +1,6 @@
 import type { Assignment } from '@rota/db-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { asDomain } from '../lib/rows.ts';
 import { supabase } from '../lib/supabase.ts';
 
 export function useCurrentAssignment(processId: string | undefined) {
@@ -15,7 +16,7 @@ export function useCurrentAssignment(processId: string | undefined) {
         .eq('is_current', true)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return asDomain<Assignment | null>(data);
     },
   });
 }
@@ -52,7 +53,7 @@ export function useRespondHandoff() {
       const { error } = await supabase.rpc('respond_handoff', {
         _assignment_id: input.assignmentId,
         _accept: input.accept,
-        _return_reason: input.returnReason ?? null,
+        _return_reason: input.returnReason,
       });
       if (error) throw error;
     },

@@ -1,6 +1,7 @@
 import type { Notification } from '@rota/db-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { asDomain } from '../lib/rows.ts';
 import { supabase } from '../lib/supabase.ts';
 
 export function useNotifications() {
@@ -14,7 +15,7 @@ export function useNotifications() {
         .order('created_at', { ascending: false })
         .limit(30);
       if (error) throw error;
-      return data;
+      return asDomain<Notification[]>(data);
     },
   });
 

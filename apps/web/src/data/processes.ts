@@ -1,6 +1,7 @@
 import type { InboxRow, ProcessPriority, ProcessRow, ProcessStatus } from '@rota/db-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { asDomain } from '../lib/rows.ts';
 import { supabase } from '../lib/supabase.ts';
 
 export function useMyInbox() {
@@ -10,7 +11,7 @@ export function useMyInbox() {
     queryFn: async (): Promise<InboxRow[]> => {
       const { data, error } = await supabase.rpc('inbox_for_me');
       if (error) throw error;
-      return data ?? [];
+      return asDomain<InboxRow[]>(data ?? []);
     },
   });
 
@@ -44,7 +45,7 @@ export function useAllProcesses() {
         .is('archived_at', null)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as ProcessRow[];
+      return asDomain<ProcessRow[]>(data);
     },
   });
 }
@@ -57,7 +58,7 @@ export function useProcess(id: string | undefined) {
       if (!id) return null;
       const { data, error } = await supabase.from('processes').select('*').eq('id', id).single();
       if (error) throw error;
-      return data;
+      return asDomain<ProcessRow>(data);
     },
   });
 }
@@ -74,7 +75,7 @@ export function useProcessByNup(nup: string | null) {
         .eq('nup', nup)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return asDomain<ProcessRow | null>(data);
     },
   });
 }
@@ -148,7 +149,7 @@ export function useCreateProcess() {
         });
         if (aErr) throw aErr;
       }
-      return data as ProcessRow;
+      return asDomain<ProcessRow>(data);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['processes'] });
