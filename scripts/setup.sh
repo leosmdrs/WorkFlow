@@ -87,9 +87,14 @@ ok "packages/db-types/src/database.generated.ts atualizado"
 
 # --- 8. sanity: lint/typecheck/testes ---------------------------------------
 say "Sanidade: lint + typecheck + testes"
-pnpm --silent lint
-pnpm --silent typecheck
-pnpm --silent test
+# Sem --silent: em comando recursivo o pnpm roteia a saída dos filhos
+# pelo reporter, e --silent a descarta inteira. O efeito é uma falha
+# muda — o script aborta pelo set -e sem nunca dizer o motivo, e o
+# erro anterior na tela (o do lint, que passou) leva a suspeitar do
+# comando errado. Ruído a mais vale menos que uma falha indecifrável.
+pnpm lint
+pnpm typecheck
+pnpm test
 ok "Tudo verde"
 
 cat <<EOF
