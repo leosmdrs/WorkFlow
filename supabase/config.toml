@@ -1,9 +1,21 @@
-# Portas na faixa 544xx em vez dos padrões 543xx do Supabase.
-# Todo projeto Supabase nasce nas mesmas portas, então dois deles
-# na mesma máquina colidem por definição — o erro é
-# "port is already allocated" no supabase_db, e o start morre.
-# Deslocar o bloco inteiro deixa o Rota conviver com os outros
-# projetos de quem desenvolve. Mesma razão da porta 5180 no Vite.
+# Portas na faixa 546xx, e não nos padrões 543xx do Supabase.
+#
+# Motivo: todo projeto Supabase nasce nas mesmas portas padrão, então
+# dois deles na mesma máquina colidem — "port is already allocated" no
+# supabase_db, e o start morre. Mesma razão da porta 5180 no Vite.
+#
+# Por que 546xx e não qualquer outra: no Windows, o Hyper-V reserva
+# faixas de portas altas, e o Docker Desktop não consegue expor nada
+# dentro delas — falha com "/forwards/expose returned unexpected
+# status: 500", que não parece um problema de porta. A faixa 544xx
+# caiu dentro de uma reserva; 546xx estava livre.
+#
+# Essas reservas são dinâmicas e mudam a cada boot do Windows. Se um
+# dia o start voltar a falhar com esse 500, confira com:
+#   netsh interface ipv4 show excludedportrange protocol=tcp
+# e ou desloque este bloco, ou proteja a faixa (PowerShell admin):
+#   netsh int ipv4 add excludedportrange protocol=tcp startport=54620 numberofports=10
+#
 # Se mexer aqui, ajuste também .env.example e o CI.
 
 # Rota — Supabase local configuration.
@@ -13,14 +25,14 @@ project_id = "rota"
 
 [api]
 enabled = true
-port = 54421
+port = 54621
 schemas = ["public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54422
-shadow_port = 54420
+port = 54622
+shadow_port = 54620
 major_version = 15
 
 [db.pooler]
@@ -31,11 +43,11 @@ enabled = true
 
 [studio]
 enabled = true
-port = 54423
+port = 54623
 
 [inbucket]
 enabled = true
-port = 54424
+port = 54624
 
 [storage]
 enabled = true

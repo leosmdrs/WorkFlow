@@ -11,7 +11,7 @@ concurrency:
 
 env:
   # Silencia o Vite/Supabase quando as vars não estão setadas em CI.
-  VITE_SUPABASE_URL: http://127.0.0.1:54421
+  VITE_SUPABASE_URL: http://127.0.0.1:54621
   VITE_SUPABASE_ANON_KEY: ci-placeholder-key
 
 jobs:

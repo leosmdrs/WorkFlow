@@ -103,6 +103,6 @@ Login (senha para todos: RotaDev!2026):
   admin  |  ana.souza  |  joao.silva  |  maria.lima
 
 Studio (SQL, editor de linhas, logs):
-  supabase status  # veja "Studio URL" (normalmente http://127.0.0.1:54423)
+  supabase status  # veja "Studio URL" (normalmente http://127.0.0.1:54623)
 
 EOF
