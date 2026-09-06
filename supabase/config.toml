@@ -62,7 +62,16 @@ enable_signup = false
 enable_manual_linking = false
 
 [auth.email]
-enable_signup = false
+# Cuidado: esta chave NÃO controla só o auto-cadastro por e-mail —
+# ela liga e desliga o provedor de e-mail inteiro. Com `false`, o
+# GoTrue recusa qualquer login com 422 email_provider_disabled
+# ("Email logins are disabled"), e o app, que mascara todo erro de
+# credencial por segurança, mostra apenas "usuário ou senha inválidos".
+#
+# Quem impede auto-cadastro é o `enable_signup = false` do bloco [auth]
+# acima, que é o controle de verdade. Aqui tem que ficar `true`, senão
+# ninguém entra.
+enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
