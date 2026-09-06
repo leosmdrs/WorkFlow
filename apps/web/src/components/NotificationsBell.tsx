@@ -6,12 +6,8 @@ import {
   useNotifications,
 } from '../data/notifications.ts';
 import { formatRelative } from '../lib/format.ts';
-
-const KIND_LABEL: Record<string, string> = {
-  mention: 'Você foi mencionado',
-  handoff_request: 'Nova passagem para você',
-  handoff_returned: 'Passagem devolvida',
-};
+import { notificationTarget, notificationText } from '../lib/notifications.ts';
+import { useBrowserNotifications } from '../lib/use-browser-notifications.ts';
 
 export function NotificationsBell() {
   const [open, setOpen] = useState(false);
@@ -22,6 +18,7 @@ export function NotificationsBell() {
   const markOne = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
   const unread = items.filter((n) => n.read_at === null).length;
+  const browser = useBrowserNotifications(items, navigate);
 
   useEffect(() => {
     if (!open) return;
@@ -68,8 +65,27 @@ export function NotificationsBell() {
               Nada por aqui. Que ótimo.
             </div>
           )}
+          {browser.permission === 'default' && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              style={{
+                margin: 'var(--space-2) var(--space-4)',
+                width: 'calc(100% - var(--space-8))',
+              }}
+              onClick={() => browser.request()}
+            >
+              Avisar também pelo navegador
+            </button>
+          )}
+          {browser.permission === 'denied' && (
+            <div className="muted text-sm" style={{ padding: '0 var(--space-4) var(--space-2)' }}>
+              Avisos do navegador bloqueados nas permissões do site.
+            </div>
+          )}
           {items.map((n) => {
-            const processId = (n.payload as { process_id?: string })?.process_id;
+            const target = notificationTarget(n);
+            const { title, body } = notificationText(n);
             return (
               <button
                 key={n.id}
@@ -78,10 +94,15 @@ export function NotificationsBell() {
                 onClick={() => {
                   if (n.read_at === null) markOne.mutate(n.id);
                   setOpen(false);
-                  if (processId) navigate(`/p/${processId}`);
+                  if (target) navigate(target);
                 }}
               >
-                <div style={{ fontWeight: 600 }}>{KIND_LABEL[n.kind] ?? n.kind}</div>
+                <div style={{ fontWeight: 600 }}>{title}</div>
+                {body && (
+                  <div className="text-sm" style={{ marginTop: 2 }}>
+                    {body}
+                  </div>
+                )}
                 <div className="muted text-sm" style={{ marginTop: 2 }}>
                   {formatRelative(n.created_at)}
                 </div>

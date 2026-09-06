@@ -686,6 +686,17 @@ a {
 }
 .notification-item {
   display: block;
+  /* Um <button> dimensiona pelo conteúdo mesmo com display:block, então
+     sem isto cada item ficava mais largo que o painel e vazava para
+     fora dele. Precisa também herdar fonte e cor, que o navegador
+     substitui por padrão em botão. */
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
   cursor: pointer;
