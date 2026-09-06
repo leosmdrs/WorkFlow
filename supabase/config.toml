@@ -70,6 +70,15 @@ enable_confirmations = false
 enable_signup = false
 enable_confirmations = false
 
+[analytics]
+# Desligado: é o explorador de logs (Logflare) do Studio, que o Rota
+# nunca usou. Ligado, ele sobe mais um container e reivindica a 54327 —
+# uma porta que nem aparecia neste arquivo, porque o CLI aplica o
+# padrão dele quando a seção não existe. Colidia com qualquer outro
+# projeto Supabase na máquina. Desligar remove o conflito e o consumo,
+# em vez de acrescentar mais uma porta para manter em dia.
+enabled = false
+
 [edge_runtime]
 enabled = true
 policy = "oneshot"
